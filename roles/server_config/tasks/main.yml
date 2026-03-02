@@ -1,28 +1,32 @@
 - name: update apt and upgrade packages
   apt:
-    update-cache: yes
+    update_cache: yes
     upgrade: dist
+  become: yes
 
 - name: install required system packages
   apt:
     pkg:
-      - apt-transport-http
       - ca-certificates
       - curl
       - gnupg
-      - lsb-realese
+      - lsb-release
       - python3-pip
       - python3-setuptools
+    state: present
+  become: yes
 
 - name: add Docker GPG apt KEy
   apt_key:
-    url: https://download.docker.com/linux/ubuntu/gpg
+    url: https://download.docker.com/linux/debian/gpg
     state: present
+  become: yes
 
 - name: add docker repository
   apt_repository:
-    repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
+    repo: deb [arch=amd64] https://download.docker.com/linux/debian {{ ansible_distribution_release }} stable
     state: present
+  become: yes
 
 - name: install docker engine and docker compose
   apt:
@@ -31,43 +35,53 @@
       - docker-ce-cli
       - containerd.io
       - docker-compose-plugin
+    update_cache: yes
     state: present
+  become: yes
 
-- name: docker service status
+- name: start docker service
   service:
     name: docker
     state: started
     enabled: yes
+  become: yes
 
 - name: install docker SDK python fot ansible docker module
-  pip:
-    name: docker
+  apt:
+    name: python3-docker
+    state: present
+  become: yes
 
 - name: install UFW
   apt:
     name: ufw
     state: present
+  become: yes
 
 - name: Allow SSH (Port 22)
   ufw:
     rule: allow
     port: '22'
     proto: tcp
+  become: yes
 
 - name: Allow HTTP (Port 80)
   ufw:
     rule: allow
     port: '80'
     proto: tcp
+  become: yes
 
 - name: Allow HTTPS (Port 443)
   ufw:
     rule: allow
     port: '443'
     proto: tcp
+  become: yes
 
-- name: enable UFW
+- name: enabled UFW
   ufw:
-    state: enable
+    state: enabled
     policy: deny
     direction: incoming
+  become: yes
