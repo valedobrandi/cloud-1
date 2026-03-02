@@ -1,0 +1,77 @@
+services:
+    
+    nginx:
+      build:
+        context: ./requeriments/nginx
+        dockerfile: Dockerfile
+      image: ngnix
+      ports:
+        - "443:443"
+      volumes:
+        - wordpress_data:/var/www/html
+      restart: always
+      depends_on:
+        wordpress:
+          condition: service_started
+      networks:
+        - inception-net
+    
+    wordpress:
+      build:
+        context: ./requeriments/wordpress
+        dockerfile: Dockerfile
+      image: wordpress
+      volumes:
+        - wordpress_data:/var/www/html
+      restart: always
+      environment:
+        WORDPRESS_DB_HOST: ${WORDPRESS_DB_HOST}
+        WORDPRESS_DB_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+        WORDPRESS_DB_USER: ${MYSQL_USER}
+        MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+        MYSQL_DATABASE: ${MYSQL_DATABASE}
+      depends_on:
+        mariadb:
+          condition: service_healthy
+      networks:
+        - inception-net
+      command: ["bash", "-c", "/usr/local/bin/wp-init.sh"]
+
+    mariadb:
+      build:
+        context: ./requeriments/mariadb
+        dockerfile: Dockerfile
+      image: mariadb
+      restart: always
+      environment:
+        MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+        MYSQL_DATABASE: ${MYSQL_DATABASE}
+        MYSQL_USER: ${MYSQL_USER}
+        MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      volumes:
+        - mariadb_data:/var/lib/mysql
+      healthcheck:
+        test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+        interval: 10s
+        timeout: 5s
+        retries: 5
+      networks:
+        - inception-net
+
+networks:
+  inception-net:
+
+volumes:
+    wordpress_data:
+      driver: local
+      driver_opts:
+        type: none
+        o: bind
+        device: /home/bde-albu/data/wordpress
+    
+    mariadb_data:
+      driver: local
+      driver_opts:
+        type: none
+        o: bind
+        device: /home/bde-albu/data/mariadb
