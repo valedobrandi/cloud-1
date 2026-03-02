@@ -1,0 +1,13 @@
+qemu-img create -f qcow2 ubuntu-vm.qcow2 10G
+
+ssh-keygen -t ed25519 -f keys/ansible_key -N ""
+
+ssh-copy-id -i keys/ansible_key.pub -p 2222 youruser@127.0.0.1
+
+ansible -i inventory/hosts.ini all -m ping
+
+# List snapshots
+qemu-img snapshot -l /path/to/disk.qcow2
+
+# Revert to a snapshot
+qemu-img snapshot -a "snapshot_name" /path/to/disk.qcow2

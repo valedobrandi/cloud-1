@@ -1,0 +1,5 @@
+- name: inception project
+  hosts: servers
+  become: yes
+  roles:
+    - server_config
