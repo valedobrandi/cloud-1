@@ -1,13 +1,32 @@
 qemu-img create -f qcow2 ubuntu-vm.qcow2 10G
 
+wget https://cloud.debian.org/images/cloud/bookworm/latest/debian-12-generic-amd64.qcow2
+
+sudo apt install cloud-image-utils qemu-system-x86
+
+cloud-localds seed.iso user-data.yaml
+
+docker image build -t ansible-control .
+
 ssh-keygen -t ed25519 -f keys/ansible_key -N ""
 
 ssh-copy-id -i keys/ansible_key.pub -p 2222 youruser@127.0.0.1
 
 ansible -i inventory/hosts.ini all -m ping
 
+chmod 600 keys/ansible_key
+
+ssh -i keys/ansible_key -p 2222 clouduser@localhost
+
+bash ansible_apply.sh 2>&1 | tee ansible_output.txt
+
+qemu-img create -f qcow2 -b debian-12-generic-amd64.qcow2 -F qcow2 cloud1.qcow2 10G
+
+# Create a snapshot
+qemu-img snapshot -c clean-install cloud1.qcow2
+
 # List snapshots
-qemu-img snapshot -l /path/to/disk.qcow2
+qemu-img snapshot -l cloud1.qcow2
 
 # Revert to a snapshot
-qemu-img snapshot -a "snapshot_name" /path/to/disk.qcow2
+qemu-img snapshot -a clean-install cloud1.qcow2

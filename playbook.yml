@@ -1,5 +1,7 @@
 - name: inception project
   hosts: servers
-  become: yes
+  become: true
   roles:
-    - server_config
+    - inception
+    #- resize
+    #- server_config

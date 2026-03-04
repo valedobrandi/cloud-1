@@ -1,8 +1,11 @@
-- name: update apt and upgrade packages
+- name: force apt update and upgrade
+  command: apt-get update
+  become: true
+
+- name: upgrade packages
   apt:
-    update_cache: yes
     upgrade: dist
-  become: yes
+  become: true
 
 - name: install required system packages
   apt:
@@ -10,78 +13,80 @@
       - ca-certificates
       - curl
       - gnupg
-      - lsb-release
-      - python3-pip
-      - python3-setuptools
+      - ufw
     state: present
-  become: yes
+  become: true
 
-- name: add Docker GPG apt KEy
-  apt_key:
-    url: https://download.docker.com/linux/debian/gpg
-    state: present
-  become: yes
+- name: create keyrings directory
+  file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: '0755'
+  become: true
 
-- name: add docker repository
-  apt_repository:
-    repo: deb [arch=amd64] https://download.docker.com/linux/debian {{ ansible_distribution_release }} stable
-    state: present
-  become: yes
+- name: add Docker GPG key
+  shell: |
+    curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /etc/apt/keyrings/docker-archive-keyring.gpg
+  args:
+    creates: /etc/apt/keyrings/docker-archive-keyring.gpg
+  become: true
 
-- name: install docker engine and docker compose
+- name: add Docker repository
+  copy:
+    dest: /etc/apt/sources.list.d/docker.list
+    content: "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian {{ ansible_distribution_release }} stable\n"
+  become: true
+
+- name: update apt cache after adding Docker repo
+  apt:
+    update_cache: yes
+    cache_valid_time: 0
+  become: true
+
+- name: verify docker-ce is available
+  command: apt-cache policy docker-ce
+  become: true
+
+- name: Install Docker engine and compose
   apt:
     pkg:
       - docker-ce
       - docker-ce-cli
       - containerd.io
       - docker-compose-plugin
-    update_cache: yes
     state: present
-  become: yes
+  become: true
 
-- name: start docker service
+- name: start and enable Docker service
   service:
     name: docker
     state: started
-    enabled: yes
-  become: yes
+    enabled: true
+  become: true
 
-- name: install docker SDK python fot ansible docker module
-  apt:
-    name: python3-docker
-    state: present
-  become: yes
+- name: Set default policies for UFW
+  ufw:
+    state: reset
+  become: true
 
-- name: install UFW
-  apt:
-    name: ufw
-    state: present
-  become: yes
-
-- name: Allow SSH (Port 22)
+- name: Allow ports through UFW
   ufw:
     rule: allow
-    port: '22'
+    port: "{{ item.port }}"
     proto: tcp
-  become: yes
+  loop:
+    - { port: 22 }
+    - { port: 80 }
+    - { port: 443 }
+  become: true
 
-- name: Allow HTTP (Port 80)
-  ufw:
-    rule: allow
-    port: '80'
-    proto: tcp
-  become: yes
-
-- name: Allow HTTPS (Port 443)
-  ufw:
-    rule: allow
-    port: '443'
-    proto: tcp
-  become: yes
-
-- name: enabled UFW
+- name: Enable UFW default deny incoming
   ufw:
     state: enabled
     policy: deny
     direction: incoming
-  become: yes
+  become: true
+
+- name: force UFW to active state
+  shell: ufw --force enable
+  become: true

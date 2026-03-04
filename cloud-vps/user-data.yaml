@@ -1,0 +1,15 @@
+#cloud-config
+users:
+  - name: clouduser
+    groups: sudo
+    shell: /bin/bash
+    sudo: 'ALL=(ALL) NOPASSWD:ALL'
+    ssh_authorized_keys:
+      - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIH+6TNu4cQDCjuaoYS0T5qAY4RjwlQt5Uv9+ngJtX84G bde-albu@c2r10p1.42nice.fr
+      
+ssh_pwauth: false
+disable_root: true
+chpasswd:
+  list: |
+     clouduser:python
+  expire: False

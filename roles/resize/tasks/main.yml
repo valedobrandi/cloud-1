@@ -1,0 +1,8 @@
+- name: Automatically expand partition and filesystem
+  shell: |
+    DISK=$(lsblk -no pkname $(findmnt / -no source))
+    PART=$(findmnt / -no source)
+    growpart /dev/$DISK ${PART#*[^0-9]}
+    resize2fs $PART
+  become: true
+  ignore_errors: true

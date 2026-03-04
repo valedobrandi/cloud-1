@@ -20,7 +20,7 @@ services:
     wordpress:
       image: wordpress:fpm
       volumes:
-        - wp_data:/var/www/html//wp-content
+        - wp_data:/var/www/html
       restart: always
       environment:
         WORDPRESS_DB_HOST: ${WORDPRESS_DB_HOST}
@@ -38,7 +38,7 @@ services:
     wp-auto-config:
       image: wordpress:cli
       volumes:
-        - wp_data:/var/www/html/wp-content
+        - wp_data:/var/www/html
         - ./wp-init.sh:/usr/local/bin/wp-init.sh
       user: "33:33"
       entrypoint: ["/bin/sh", "/usr/local/bin/wp-init.sh"]

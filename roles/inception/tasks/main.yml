@@ -1,0 +1,36 @@
+- name: Create Inception project directory
+  file:
+    path: /home/clouduser/inception
+    state: directory
+    owner: clouduser
+    group: clouduser
+    mode: '0755'
+
+- name: copy Inception configuration files to VM
+  copy:
+    src: ./inception/
+    dest: /home/clouduser/inception/
+    owner: clouduser
+    group: clouduser
+    mode: '0644'
+    directory_mode: '0755'
+  become: true
+
+- name: Create persistent data directories
+  file:
+    path: "/home/data/{{ item }}"
+    state: directory
+    owner: clouduser
+    group: clouduser
+    mode: '0775'
+    recurse: yes
+  become: true
+  loop:
+    - wordpress
+    - mariadb
+
+- name: start Inception project
+  shell:
+    cmd: docker compose --env-file ./secrets/.env up -d --build
+    chdir: /home/clouduser/inception/srcs
+  become: true
