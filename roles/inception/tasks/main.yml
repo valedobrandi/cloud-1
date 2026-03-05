@@ -1,17 +1,17 @@
 - name: Create Inception project directory
   file:
-    path: /home/clouduser/inception
+    path: "{{ ansible_env.HOME }}/inception"
     state: directory
-    owner: clouduser
-    group: clouduser
+    owner: "{{ ansible_env.USER }}"
+    group: "{{ ansible_env.USER }}"
     mode: '0755'
 
 - name: copy Inception configuration files to VM
   copy:
     src: ./inception/
-    dest: /home/clouduser/inception/
-    owner: clouduser
-    group: clouduser
+    dest: "{{ ansible_env.HOME }}/inception/"
+    owner: "{{ ansible_env.USER }}"
+    group: "{{ ansible_env.USER }}"
     mode: '0644'
     directory_mode: '0755'
   become: true
@@ -20,8 +20,8 @@
   file:
     path: "/home/data/{{ item }}"
     state: directory
-    owner: clouduser
-    group: clouduser
+    owner: "{{ ansible_env.USER }}"
+    group: "{{ ansible_env.USER }}"
     mode: '0775'
     recurse: yes
   become: true
@@ -32,5 +32,5 @@
 - name: start Inception project
   shell:
     cmd: docker compose --env-file ./secrets/.env up -d --build
-    chdir: /home/clouduser/inception/srcs
+    chdir: "{{ ansible_env.HOME }}/inception/srcs"
   become: true

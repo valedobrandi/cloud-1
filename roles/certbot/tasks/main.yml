@@ -1,0 +1,14 @@
+- name: install Certbot
+  apt:
+    name: certbot
+    state: present
+
+- name: Generate Let's Encrypt Certificate
+  command: >
+    certbot certonly --standalone
+    -d cloud1.stoicsoftwares.net
+    --email valedobrandi@gmail.com
+    --agree-tos
+    --non-interactive
+  args:
+    creates: /etc/letsencrypt/live/cloud1.stoicsoftwares.net/fullchain.pem

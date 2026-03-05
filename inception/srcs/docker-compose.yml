@@ -9,8 +9,8 @@ services:
         - "80:80"
       volumes:
         - ./requeriments/nginx/conf/nginx.conf:/etc/nginx/nginx.conf:ro
-        - ./requeriments/nginx/certs/ssl-cert.key:/etc/nginx/certs/ssl-cert.key:ro
-        - ./requeriments/nginx/certs/ssl-cert.pem:/etc/nginx/certs/ssl-cert.pem:ro
+        - /etc/letsencrypt/live/cloud1.stoicsoftwares.net/fullchain.pem:/etc/nginx/ssl/inception.crt:ro
+        - /etc/letsencrypt/live/cloud1.stoicsoftwares.net/privkey.pem:/etc/nginx/ssl/inception.key:ro
       depends_on:
         wordpress:
           condition: service_started
@@ -20,7 +20,7 @@ services:
     wordpress:
       image: wordpress:fpm
       volumes:
-        - wp_data:/var/www/html//wp-content
+        - wp_data:/var/www/html/
       restart: always
       environment:
         WORDPRESS_DB_HOST: ${WORDPRESS_DB_HOST}
@@ -38,8 +38,8 @@ services:
     wp-auto-config:
       image: wordpress:cli
       volumes:
-        - wp_data:/var/www/html/wp-content
-        - ./wp-init.sh:/usr/local/bin/wp-init.sh
+        - wp_data:/var/www/html/
+        - ./requeriments/wordpress/tools/wp-init.sh:/usr/local/bin/wp-init.sh
       user: "33:33"
       entrypoint: ["/bin/sh", "/usr/local/bin/wp-init.sh"]
       depends_on:
@@ -47,10 +47,8 @@ services:
         - wordpress
       environment:
         WORDPRESS_DB_HOST: ${WORDPRESS_DB_HOST}
-        WORDPRESS_DB_PASSWORD: ${MYSQL_PASSWORD}
-        WORDPRESS_DB_USER: ${MYSQL_USER}
-        MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-        MYSQL_DATABASE: ${MYSQL_DATABASE}
+        WORDPRESS_DB_PASSWORD: ${WORDPRESS_DB_PASSWORD}
+        WORDPRESS_DB_USER: ${WORDPRESS_DB_USER}
       env_file: 
         - ./secrets/.env
       networks:

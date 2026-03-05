@@ -2,6 +2,6 @@
   hosts: servers
   become: true
   roles:
-    - inception
-    #- resize
     #- server_config
+    #- certbot
+    - inception

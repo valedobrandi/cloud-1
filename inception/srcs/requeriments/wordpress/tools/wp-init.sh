@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export MYSQL_DATABASE MYSQL_USER MYSQL_PASSWORD WORDPRESS_DB_HOST WORDPRESS_DB_USER WORDPRESS_DB_PASSWORD
+export WORDPRESS_DB_HOST WORDPRESS_DB_USER WORDPRESS_DB_PASSWORD
 
 cd /var/www/html
 
@@ -9,8 +9,15 @@ until nc -z "$WORDPRESS_DB_HOST" 3306; do
     sleep 3
 done
 
+echo "Waiting for WordPress files..."
+until [ -f /var/www/html/wp-config.php ]; do
+    sleep 2
+done
+
+wp config set FORCE_SSL_ADMIN true --raw --allow-root
+
 wp core install \
-    --url="https://bde-albu.42.fr" \
+    --url="https://cloud1.stoicsoftwares.net" \
     --title="inception site" \
     --admin_user="$WORDPRESS_DB_USER" \
     --admin_password="$WORDPRESS_DB_PASSWORD" \

@@ -1,8 +1,8 @@
 .env
 vm.sh
 cloud-1.qcow2
-ansible_key
-ansible_key.pub
+keys/ansible_key
+keys/ansible_key.pub
 cloud1-vm.qcow2
 debian-12-generic-amd64.qcow2
 cloud1.qcow2
