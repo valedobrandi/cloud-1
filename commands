@@ -30,3 +30,5 @@ qemu-img snapshot -l cloud1.qcow2
 
 # Revert to a snapshot
 qemu-img snapshot -a clean-install cloud1.qcow2
+
+https://cloud1.stoicsoftwares.net/

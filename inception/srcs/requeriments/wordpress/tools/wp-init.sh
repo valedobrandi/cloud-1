@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export WORDPRESS_DB_HOST WORDPRESS_DB_USER WORDPRESS_DB_PASSWORD
+export WORDPRESS_USER WORDPRESS_PASSWORD WORDPRESS_DB_HOST
 
 cd /var/www/html
 
@@ -19,8 +19,8 @@ wp config set FORCE_SSL_ADMIN true --raw --allow-root
 wp core install \
     --url="https://cloud1.stoicsoftwares.net" \
     --title="inception site" \
-    --admin_user="$WORDPRESS_DB_USER" \
-    --admin_password="$WORDPRESS_DB_PASSWORD" \
+    --admin_user="$WORDPRESS_USER" \
+    --admin_password="$WORDPRESS_PASSWORD" \
     --admin_email="bde-albu@42.fr" \
     --skip-email \
     --allow-root 
