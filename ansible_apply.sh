@@ -7,4 +7,3 @@ docker run --rm -it \
     -e ANSIBLE_HOST_KEY_CHECKING=False \
     ansible-control \
     ansible-playbook -i inventory/hosts.ini playbook.yml
-

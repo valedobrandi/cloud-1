@@ -1,7 +1,8 @@
+---
 - name: inception project
   hosts: servers
   become: true
   roles:
-    - server_config
-    - certbot
+    #- server_config
+    #- certbot
     - inception

@@ -54,6 +54,18 @@ services:
         - ./secrets/.env
       networks:
         - inception-net
+    
+    phpmyadmin:
+      image: phpmyadmin:latest
+      environment:
+        PMA_HOST: mariadb
+        PMA_USER: ${MYSQL_USER}
+        PMA_PASSWORD: ${MYSQL_PASSWORD}
+        PMA_ABSOLUTE_URI: https://cloud1.stoicsoftwares.net/phpmyadmin/
+        PMA_ARBITRARY: 1
+      networks:
+        - inception-net
+      restart: always
 
     mariadb:
       image: mariadb:10.11
